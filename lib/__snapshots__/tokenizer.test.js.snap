@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`it should pass 1`] = `
+Array [
+  Object {
+    "kind": "IdentifierToken",
+    "value": "log",
+  },
+  Object {
+    "kind": "OpenParenToken",
+  },
+  Object {
+    "kind": "NumericLiteralToken",
+    "value": "1",
+  },
+  Object {
+    "kind": "PlusToken",
+  },
+  Object {
+    "kind": "NumericLiteralToken",
+    "value": "3",
+  },
+  Object {
+    "kind": "PlusToken",
+  },
+  Object {
+    "kind": "NumericLiteralToken",
+    "value": "5",
+  },
+  Object {
+    "kind": "CloseParenToken",
+  },
+]
+`;
