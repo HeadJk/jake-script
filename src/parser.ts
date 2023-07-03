@@ -1,15 +1,15 @@
-import { Token, Program, Node, TokenKind, NodeKind, AnyToken, AnyNode, TokenGroup } from "./types";
+import { Token, Program, Node, TokenKind, NodeKind, AnyToken, TokenGroup, NumericLiteralNode, CallExpressionNode, BinaryExpressionNode } from "./types";
 
 export function parser(tokens: AnyToken[]): Program {
     const program: Program = { body: [] };
     let current = 0;
 
-    const parseNumericLiteral = (token: Token['NumericLiteralToken']): Node['NumericLiteralNode'] => {
+    const parseNumericLiteral = (token: Token['NumericLiteralToken']): NumericLiteralNode => {
         current++;
-        return { kind: NodeKind.NumericLiteralNode, value: token.value}
+        return new NumericLiteralNode(token.value);
     }
 
-    const parseCallExpression = (token: Token['IdentifierToken']): Node['CallExpressionNode'] => {
+    const parseCallExpression = (token: Token['IdentifierToken']): CallExpressionNode => {
         const identifier = token;
         current++;
 
@@ -18,27 +18,27 @@ export function parser(tokens: AnyToken[]): Program {
         }
         current++;
 
-        const argument: AnyNode = parse();
+        const argument = parse();
 
         if(tokens[current].kind !== TokenKind.CloseParenToken) {
             throw new SyntaxError('Call expressions must terminate with a )')
         }
         current++;
 
-        return { kind: NodeKind.CallExpressionNode, identifier, argument}
+        return new CallExpressionNode(identifier, argument);
     }
 
-    const parseBinaryExpression = (token: Token['NumericLiteralToken'], next: TokenGroup.AdditiveOperator): Node['BinaryExpressionNode'] => {
+    const parseBinaryExpression = (token: Token['NumericLiteralToken'], next: TokenGroup.AdditiveOperator): BinaryExpressionNode => {
         const left = parseNumericLiteral(token)
 
         const operator = next;
         current++;
 
         const right = parse()
-        return { kind: NodeKind.BinaryExpressionNode, left, operator, right }
+        return new BinaryExpressionNode(left, right, operator);
     }
 
-    const parse = (): AnyNode => {
+    const parse = (): Node => {
         const token = tokens[current]
 
         if (token.kind === TokenKind.IdentifierToken) {
