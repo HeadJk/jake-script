@@ -1,4 +1,4 @@
-import { Token, Program, Node, TokenKind, NodeKind, AnyToken, TokenGroup, NumericLiteralNode, CallExpressionNode, BinaryExpressionNode } from "./types";
+import { Token, Program, TokenKind, AnyToken, TokenGroup, NumericLiteralNode, CallExpressionNode, BinaryExpressionNode, AnyNode, serialize } from "./types";
 
 export function parser(tokens: AnyToken[]): Program {
     const program: Program = { body: [] };
@@ -6,7 +6,7 @@ export function parser(tokens: AnyToken[]): Program {
 
     const parseNumericLiteral = (token: Token['NumericLiteralToken']): NumericLiteralNode => {
         current++;
-        return new NumericLiteralNode(token.value);
+        return new NumericLiteralNode({value: token.value});
     }
 
     const parseCallExpression = (token: Token['IdentifierToken']): CallExpressionNode => {
@@ -25,7 +25,7 @@ export function parser(tokens: AnyToken[]): Program {
         }
         current++;
 
-        return new CallExpressionNode(identifier, argument);
+        return new CallExpressionNode({identifier, argument});
     }
 
     const parseBinaryExpression = (token: Token['NumericLiteralToken'], next: TokenGroup.AdditiveOperator): BinaryExpressionNode => {
@@ -35,10 +35,10 @@ export function parser(tokens: AnyToken[]): Program {
         current++;
 
         const right = parse()
-        return new BinaryExpressionNode(left, right, operator);
+        return new BinaryExpressionNode({left, right, operator});
     }
 
-    const parse = (): Node => {
+    const parse = (): AnyNode => {
         const token = tokens[current]
 
         if (token.kind === TokenKind.IdentifierToken) {
@@ -60,7 +60,7 @@ export function parser(tokens: AnyToken[]): Program {
     }
 
     while (current < tokens.length) {
-        program.body.push(parse())
+        program.body.push(serialize(parse()))
     }
 
     return program;

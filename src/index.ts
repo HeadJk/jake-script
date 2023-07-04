@@ -26,7 +26,7 @@ async function main() {
         throw err;
     }
 
-    const output = compiler(input);
+    const output = compiler(input);    
     if(run) {
         interpreter(output);
     } else {

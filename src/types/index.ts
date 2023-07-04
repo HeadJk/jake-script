@@ -1,7 +1,7 @@
-import type { Node } from './nodes';
+import type { AnyNode, AnySerializedNode } from './nodes';
 
 
 export * from './tokens';
 export * from './nodes'
 export * as TokenGroup from './groupings';
-export type Program = { body: Node[] }
+export type Program = { body: AnySerializedNode[] }
