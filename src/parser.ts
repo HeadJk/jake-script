@@ -1,15 +1,18 @@
-import { Token, Program, TokenKind, AnyToken, TokenGroup, NumericLiteralNode, CallExpressionNode, BinaryExpressionNode, AnyNode, serialize } from "./types";
+import { AnySerializedNode, AnyToken, BinaryExpressionNode, CallExpressionNode, NumericLiteralNode, Program, Token, TokenGroup, TokenKind } from "./types";
 
 export function parser(tokens: AnyToken[]): Program {
     const program: Program = { body: [] };
     let current = 0;
 
-    const parseNumericLiteral = (token: Token['NumericLiteralToken']): NumericLiteralNode => {
+    const parseNumericLiteral = (token: Token['NumericLiteralToken']) => {
         current++;
-        return new NumericLiteralNode({value: token.value});
+
+        const props = { value: token.value };
+
+        return { kind: NumericLiteralNode.kind, props}
     }
 
-    const parseCallExpression = (token: Token['IdentifierToken']): CallExpressionNode => {
+    const parseCallExpression = (token: Token['IdentifierToken']) => {
         const identifier = token;
         current++;
 
@@ -25,20 +28,25 @@ export function parser(tokens: AnyToken[]): Program {
         }
         current++;
 
-        return new CallExpressionNode({identifier, argument});
+        const props = {identifier, argument};
+        
+        return { kind: CallExpressionNode.kind, props }
     }
 
-    const parseBinaryExpression = (token: Token['NumericLiteralToken'], next: TokenGroup.AdditiveOperator): BinaryExpressionNode => {
+    const parseBinaryExpression = (token: Token['NumericLiteralToken'], next: TokenGroup.AdditiveOperator) => {
         const left = parseNumericLiteral(token)
 
         const operator = next;
         current++;
 
         const right = parse()
-        return new BinaryExpressionNode({left, right, operator});
+        
+        const props = {left, right, operator};
+        
+        return { kind: BinaryExpressionNode.kind, props }
     }
 
-    const parse = (): AnyNode => {
+    const parse = (): AnySerializedNode  => {
         const token = tokens[current]
 
         if (token.kind === TokenKind.IdentifierToken) {
@@ -60,7 +68,7 @@ export function parser(tokens: AnyToken[]): Program {
     }
 
     while (current < tokens.length) {
-        program.body.push(serialize(parse()))
+        program.body.push(parse())
     }
 
     return program;

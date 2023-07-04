@@ -18,7 +18,7 @@ export type GetProps<T extends Props<{}>> = {
 type Distribute<U> = U extends Kind & Props<{}> ? GetKind<U> & GetProps<U> : never;
 
 export type GetSerializedNodeDistributed<T extends Kind & Props<{}>> = Distribute<T>
-export type GetSerializedNodeS<T extends Kind & Props<{}>> = GetKind<T> & GetProps<T>
+export type GetSerializedNode<T extends Kind & Props<{}>> = GetKind<T> & GetProps<T>
 
 export type AnyNode =
     NumericLiteralNode
@@ -44,7 +44,7 @@ export type AnySerializedNode = GetSerializedNodeDistributed<AnyNode>
 // }
 
 export interface Emitable {
-    emit: () => string;
+    emit: (emitNext: (node: AnySerializedNode) => string) => string;
 }
 
 export interface Kind {
@@ -98,10 +98,6 @@ export function deserialize(serializedNode: AnySerializedNode): AnyNode {
 
 export interface Node<P extends Object> extends Emitable, Kind, Props<P> { }
 
-export function isNode(node: unknown): node is Node<{}> {
-    
-}
-
 export type NumericLiteralNodeProps = {
     value: string
 }
@@ -128,12 +124,12 @@ export class NumericLiteralNode implements Node<NumericLiteralNodeProps> {
 
     props() { return this.properties }
 
-    emit() { return this.properties.value }
+    emit(emitNext: (node: AnySerializedNode) => string) { return this.properties.value }
 }
 
 export type BinaryExpressionNodeProps = {
-    left: Node<{}>,
-    right: Node<{}>,
+    left: AnySerializedNode,
+    right: AnySerializedNode,
     operator: AdditiveOperator,
 }
 
@@ -159,7 +155,7 @@ export class BinaryExpressionNode implements Node<BinaryExpressionNodeProps> {
 
     kind() { return BinaryExpressionNode.kind };
 
-    emit() {
+    emit(emitNext: (node: AnySerializedNode) => string) {
         let operator = "";
         switch (this.properties.operator.kind) {
             case TokenKind.PlusToken: operator = "+"; break;
@@ -167,13 +163,13 @@ export class BinaryExpressionNode implements Node<BinaryExpressionNodeProps> {
             case TokenKind.MultiplyToken: operator = "*"; break;
             case TokenKind.DivideToken: operator = "/"; break;
         }
-        return `${this.properties.left.emit()} ${operator} ${this.properties.right.emit()}`;
+        return `${emitNext(this.properties.left)} ${operator} ${emitNext(this.properties.right)}`;
     }
 }
 
 export type CallExpressionNodeProps = {
     identifier: Token['IdentifierToken'],
-    argument: Node<{}>,
+    argument: AnySerializedNode,
 }
 export class CallExpressionNode implements Node<CallExpressionNodeProps> {
     constructor( private properties: CallExpressionNodeProps ) { }
@@ -184,11 +180,11 @@ export class CallExpressionNode implements Node<CallExpressionNodeProps> {
 
     kind() { return CallExpressionNode.kind };
 
-    emit() {
+    emit(emitNext: (node: AnySerializedNode) => string) {
         if (this.properties.identifier.value === 'debugJS') {
-            return `console.log(${`'${this.properties.argument.emit()}'`})`
+            return `console.log(${`'${emitNext(this.properties.argument)}'`})`
         } else if (this.properties.identifier.value === 'log') {
-            return `console.log(${this.properties.argument.emit()})`;
+            return `console.log(${emitNext(this.properties.argument)})`;
         } else {
             throw new SyntaxError(`Unknown Identifier in call expression: ${this.properties.identifier.value}`);
         }

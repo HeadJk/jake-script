@@ -4,25 +4,33 @@ exports[`it should pass 1`] = `
 Object {
   "body": Array [
     Object {
-      "argument": Object {
-        "kind": "BinaryExpressionNode",
-        "left": Object {
-          "kind": "NumericLiteralNode",
-          "value": "1",
-        },
-        "operator": Object {
-          "kind": "PlusToken",
-        },
-        "right": Object {
-          "kind": "NumericLiteralNode",
-          "value": "3",
-        },
-      },
-      "identifier": Object {
-        "kind": "IdentifierToken",
-        "value": "log",
-      },
       "kind": "CallExpressionNode",
+      "props": Object {
+        "argument": Object {
+          "kind": "BinaryExpressionNode",
+          "props": Object {
+            "left": Object {
+              "kind": "NumericLiteralNode",
+              "props": Object {
+                "value": "1",
+              },
+            },
+            "operator": Object {
+              "kind": "PlusToken",
+            },
+            "right": Object {
+              "kind": "NumericLiteralNode",
+              "props": Object {
+                "value": "3",
+              },
+            },
+          },
+        },
+        "identifier": Object {
+          "kind": "IdentifierToken",
+          "value": "log",
+        },
+      },
     },
   ],
 }
